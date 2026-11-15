@@ -1,3 +1,4 @@
+/*! © 2026 LANZA (twitch.tv/lanza). All rights reserved. Not licensed for copying, reuse, modification or redistribution in any form. */
 /* Project Claude V2 – loader (v2 · 15 Nov). The widget's styling and code live on GitHub Pages
    (https://lanzagb.github.io/lanza-overlay/). This tab:
    - keeps the widget invisible while it loads, then fades it in fully set up (no half-built "loading" look)
