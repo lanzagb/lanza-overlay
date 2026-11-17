@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wheel Control</title>
+<!--! © 2026 LANZA (twitch.tv/lanza). All rights reserved. Not licensed for copying, reuse, modification or redistribution in any form. -->
+<!-- LANZA · Wheel Control – an OBS Custom Browser Dock for the Project Claude V2 widget.
+     Open as  https://lanzagb.github.io/lanza-overlay/dock.html#c=YOUR-CHANNEL-NAME
+     The channel name after #c= must match "Control Dock: Channel Name" in the widget (group 20). It's private: anyone
+     who knows it can flip these switches, so never show it on stream or share it. It never leaves this PC except to ntfy.sh. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a090d; --bar-top:#19171f; --bar-bot:#0c0b0f; --line:rgba(129,60,255,.55); --hair:rgba(255,255,255,.07);
+  --edge:#6d26dd; --label:#9255f3; --text:#ecebf1; --muted:#8e8b98; --off:#3a3742; --ok:#2fd3c6; --warn:#ffb347;
+  --font:"Teko","Arial Narrow","Roboto Condensed",Impact,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-user-select:none;user-select:none}
+body{padding:10px 10px 14px;display:flex;flex-direction:column;gap:10px;min-width:220px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px 5px;border:1px solid var(--line);border-radius:6px;
+  background:linear-gradient(var(--bar-top),var(--bar-bot));box-shadow:0 0 14px rgba(109,38,221,.18)}
+.top h1{margin:0;font-weight:500;font-size:26px;line-height:24px;letter-spacing:.5px;text-transform:uppercase}
+.top h1 span{color:var(--label)}
+.st{display:flex;align-items:center;gap:7px;font-size:16px;line-height:16px;letter-spacing:.6px;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+.st i{width:8px;height:8px;border-radius:50%;background:var(--off);flex:none}
+.st.live i{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+.st.wait i{background:var(--warn);animation:blink 1.2s ease-in-out infinite}
+@keyframes blink{50%{opacity:.25}}
+.grp{border:1px solid var(--hair);border-radius:6px;background:rgba(16,16,16,.8);padding:4px 12px 2px}
+.grp h2{margin:4px 0 2px;font-weight:400;font-size:16px;letter-spacing:1.2px;color:var(--label);text-transform:uppercase}
+button.sw{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:7px 0 5px;border-top:1px solid var(--hair);cursor:pointer}
+.grp h2+button.sw{border-top:0}
+button.sw:focus-visible{outline:2px solid var(--label);outline-offset:2px}
+.sw .nm{font-size:24px;line-height:22px;text-transform:uppercase;transition:color .2s}
+.sw .nm small{display:block;font-size:15px;line-height:15px;color:var(--muted);letter-spacing:.4px;margin-top:1px}
+.tg{position:relative;flex:none;width:46px;height:24px;border-radius:12px;background:#1d1b23;border:1px solid var(--off);transition:background .2s,border-color .2s}
+.tg::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#5c5866;transition:transform .2s cubic-bezier(.3,.7,.3,1),background .2s}
+.sw[aria-checked="true"] .tg{background:rgba(109,38,221,.35);border-color:var(--edge);box-shadow:0 0 8px rgba(109,38,221,.45)}
+.sw[aria-checked="true"] .tg::after{transform:translateX(22px);background:#fff}
+.sw[aria-checked="false"] .nm{color:var(--muted)}
+.sw.busy .tg{animation:blink .8s ease-in-out infinite}
+.sw[disabled]{cursor:default;opacity:.45}
+.msg{font-size:16px;line-height:17px;color:var(--muted);letter-spacing:.3px;padding:0 2px;min-height:17px}
+.msg.bad{color:var(--warn)}
+</style>
+</head>
+<body>
+<div class="top"><h1>Wheel <span>Control</span></h1><div class="st" id="st"><i></i><span>Connecting</span></div></div>
+
+<div class="grp">
+  <h2>Spin the wheel</h2>
+  <button class="sw" data-k="spin" role="switch" aria-checked="true"><span class="nm">Spins<small>!spin</small></span><span class="tg"></span></button>
+  <button class="sw" data-k="buy" role="switch" aria-checked="true"><span class="nm">Buying<small>!buy</small></span><span class="tg"></span></button>
+  <button class="sw" data-k="tokens" role="switch" aria-checked="true"><span class="nm">Earn tokens<small>subs, gifts, draws, games</small></span><span class="tg"></span></button>
+</div>
+<div class="grp">
+  <h2>Prize groups · wheel &amp; store</h2>
+  <button class="sw" data-k="irl" role="switch" aria-checked="true"><span class="nm">IRL</span><span class="tg"></span></button>
+  <button class="sw" data-k="ingame" role="switch" aria-checked="true"><span class="nm">In-Game</span><span class="tg"></span></button>
+  <button class="sw" data-k="reticle" role="switch" aria-checked="true"><span class="nm">Reticles</span><span class="tg"></span></button>
+  <button class="sw" data-k="theme" role="switch" aria-checked="true"><span class="nm">Themes</span><span class="tg"></span></button>
+  <button class="sw" data-k="surge" role="switch" aria-checked="true"><span class="nm">Token Surge<small>the wheel prize</small></span><span class="tg"></span></button>
+  <button class="sw" data-k="cleanse" role="switch" aria-checked="true"><span class="nm">Cleanse<small>the wheel prize</small></span><span class="tg"></span></button>
+</div>
+<div class="msg" id="msg"></div>
+
+<script>
+/* ---------- CONFIG ---------- */
+const CONFIG = {
+  relay: "https://ntfy.sh/",   // the free message relay the widget listens to
+  answerWaitMs: 6000,          // how long to wait for the widget to confirm a switch before putting it back
+  staleMs: 15 * 60 * 1000      // after this long with no word from the widget, show "waiting"
+};
+/* ---------------------------- */
+const topic = (new URLSearchParams(location.hash.slice(1)).get("c") || "").replace(/[^A-Za-z0-9_-]/g, "");
+const $ = (id) => document.getElementById(id), sws = [...document.querySelectorAll(".sw")];
+const st = $("st"), msg = $("msg");
+let heardAt = 0, fresh = false, state = null, editorOnlyAt = 0;
+const pending = {};
+
+function status(kind, text) { st.className = "st " + kind; st.lastChild.textContent = text; }
+function note(text, bad) { msg.textContent = text || ""; msg.classList.toggle("bad", !!bad); }
+function paint() {
+  sws.forEach((b) => {
+    const k = b.dataset.k, on = state ? state[k] !== false : true;
+    if (!pending[k]) b.setAttribute("aria-checked", String(on));
+    b.disabled = !state;
+  });
+}
+function post(obj) { return fetch(CONFIG.relay + encodeURIComponent(topic), { method: "POST", body: JSON.stringify(obj) }); }
+
+function onState(m, live) {
+  if (!m.s || typeof m.s !== "object") return;
+  if (m.editor && Date.now() - heardAt < 30000 && !editorOnlyAt) return; // (prefer the copy in OBS over the StreamElements editor)
+  editorOnlyAt = m.editor ? Date.now() : 0;
+  state = m.s; heardAt = live ? Date.now() : (m.at || 0);
+  Object.keys(pending).forEach((k) => { if (state[k] === pending[k].v) { clearTimeout(pending[k].t); delete pending[k]; document.querySelector('.sw[data-k="' + k + '"]').classList.remove("busy"); } });
+  paint();
+  if (live) { fresh = true; status("live", m.editor ? "Live (editor)" : "Live"); note(""); }
+  else if (!fresh) { status("wait", "Last known"); note("Showing the last saved switches – waiting for the widget to answer."); }
+}
+
+sws.forEach((b) => b.addEventListener("click", () => {
+  if (!state || b.disabled) return;
+  const k = b.dataset.k, v = b.getAttribute("aria-checked") !== "true";
+  b.setAttribute("aria-checked", String(v)); b.classList.add("busy");
+  clearTimeout(pending[k] && pending[k].t);
+  pending[k] = { v, t: setTimeout(() => { delete pending[k]; b.classList.remove("busy"); paint(); note("The widget didn't confirm that – is OBS showing the overlay?", true); }, CONFIG.answerWaitMs) };
+  post({ t: "set", k, v, at: Date.now() }).catch(() => { note("Couldn't reach ntfy.sh – check the internet connection.", true); });
+}));
+
+function connect() {
+  if (!topic) { status("", "Not set up"); note("Add #c=YOUR-CHANNEL-NAME to the end of this dock's address.", true); paint(); return; }
+  let es, tries = 0;
+  const open = () => {
+    es = new EventSource(CONFIG.relay + encodeURIComponent(topic) + "/sse?since=12h"); // (the last 12h: shows the last known switches straight away)
+    es.onopen = () => { tries = 0; post({ t: "hello", at: Date.now() }).catch(() => {}); };
+    es.onmessage = (e) => {
+      let m; try { m = JSON.parse(JSON.parse(e.data).message || "null"); } catch (x) { return; }
+      if (!m || m.t !== "state") return;
+      const live = Date.now() - (Number(m.at) || 0) < 20000;
+      onState(m, live);
+    };
+    es.onerror = () => { if (es.readyState === 2) { status("wait", "Reconnecting"); setTimeout(open, Math.min(30000, 2000 * ++tries)); } };
+  };
+  open();
+  status("wait", "Connecting"); paint();
+  setInterval(() => { if (fresh && Date.now() - heardAt > CONFIG.staleMs) { fresh = false; status("wait", "Waiting"); post({ t: "hello", at: Date.now() }).catch(() => {}); } }, 30000);
+  setTimeout(() => { if (!fresh) { status("wait", "Waiting"); note(state ? "Showing the last saved switches – the widget hasn't answered yet (is the overlay open in OBS?)." : "No answer yet – is the overlay open in OBS, with the same channel name in its settings?", !state); } }, 8000);
+}
+connect();
+</script>
+</body>
+</html>
