@@ -15,3 +15,5 @@
 #ciw#ciw#ciw#ciw#ciw#ciw.v2.s2-simple.train-content[data-v2-mode=state1][data-bar-fx^=fxCircuit]:not(.alert-running) .bar-fx:after{--ct-op:.8}
 #ciw#ciw#ciw#ciw#ciw#ciw.v2.s2-simple.train-content:not(.s2-bar-v2)[data-v2-mode=state1]:not(.alert-running) .v2-webs .vw-fill{fill:color-mix(in srgb,rgb(var(--p)) 5.6%,color-mix(in srgb,rgb(var(--bg1)) 71%,rgb(var(--bg2))));fill-opacity:var(--logo-bg-a,1)}
 #ciw#ciw#ciw#ciw#ciw#ciw.v2.v2a-disc-on.s2-simple.train-content[data-v2-mode=state1]:not(.alert-running) .bar-fx{-webkit-mask-image:radial-gradient(circle at 374px 37px,rgba(0,0,0,calc(1 - var(--logo-bg-a,1))) 63.5px,#000 64.1px)!important;mask-image:radial-gradient(circle at 374px 37px,rgba(0,0,0,calc(1 - var(--logo-bg-a,1))) 63.5px,#000 64.1px)!important;-webkit-mask-size:auto!important;mask-size:auto!important;-webkit-mask-repeat:no-repeat!important;mask-repeat:no-repeat!important}
+#ciw .prime-ad.pa-slots.pa-on .pa-beam{transition:transform .9s cubic-bezier(.2,.8,.2,1) .05s,opacity .6s ease .05s}
+#ciw .prime-ad.pa-slots.pa-on .pa-lens{transition:opacity .5s ease 0s;animation-delay:.9s}
