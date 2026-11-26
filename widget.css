@@ -17,3 +17,6 @@
 #ciw#ciw#ciw#ciw#ciw#ciw.v2.v2a-disc-on.s2-simple.train-content[data-v2-mode=state1]:not(.alert-running) .bar-fx{-webkit-mask-image:radial-gradient(circle at 374px 37px,rgba(0,0,0,calc(1 - var(--logo-bg-a,1))) 63.5px,#000 64.1px)!important;mask-image:radial-gradient(circle at 374px 37px,rgba(0,0,0,calc(1 - var(--logo-bg-a,1))) 63.5px,#000 64.1px)!important;-webkit-mask-size:auto!important;mask-size:auto!important;-webkit-mask-repeat:no-repeat!important;mask-repeat:no-repeat!important}
 #ciw .prime-ad.pa-slots.pa-on .pa-beam{transition:transform .9s cubic-bezier(.2,.8,.2,1) .05s,opacity .6s ease .05s}
 #ciw .prime-ad.pa-slots.pa-on .pa-lens{transition:opacity .5s ease 0s;animation-delay:.9s}
+#ciw#ciw#ciw.v2.alert-running #centerLogoSection .center-logo-core{scale:var(--tn-s1-rest,1)}
+#ciw#ciw#ciw.v2.alert-running.train-content:not(.s2-simple) #centerLogoSection .center-logo-core{scale:var(--tn-s2-size,1)}
+#ciw#ciw#ciw.v2.alert-running.hype-live #centerLogoSection .center-logo-core{scale:var(--tn-hy-size,1)}
