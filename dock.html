@@ -54,6 +54,13 @@ button.play{all:unset;box-sizing:border-box;flex:none;font-family:var(--font);fo
 button.play:hover{background:rgba(109,38,221,.35)}
 button.play:focus-visible{outline:2px solid var(--label);outline-offset:2px}
 button.play[disabled]{opacity:.4;cursor:default}
+.tx{display:flex;gap:6px;align-items:center;padding:6px 0 8px}
+.tx input{flex:1 1 auto;min-width:0;box-sizing:border-box;font-family:var(--font);font-size:22px;line-height:22px;letter-spacing:.5px;text-transform:uppercase;color:var(--text);
+  background:#141218;border:1px solid var(--off);border-radius:4px;padding:5px 8px 2px;-webkit-user-select:text;user-select:text;outline:none}
+.tx input:focus{border-color:var(--edge);box-shadow:0 0 8px rgba(109,38,221,.35)}
+.tx input::placeholder{color:var(--muted)}
+.tx input[disabled]{opacity:.45}
+.cur{font-size:15px;line-height:15px;color:var(--muted);letter-spacing:.4px;padding:0 0 6px}
 .msg{font-size:16px;line-height:17px;color:var(--muted);letter-spacing:.3px;padding:0 2px;min-height:17px}
 .msg.bad{color:var(--warn)}
 </style>
@@ -73,6 +80,11 @@ button.play[disabled]{opacity:.4;cursor:default}
   <button class="sw" data-k="chat" role="switch" aria-checked="true"><span class="nm">Twitch chat box<small>!chaton / !chatoff</small></span><span class="tg"></span></button>
   <button class="sw" data-k="camborder" role="switch" aria-checked="true"><span class="nm">Camera border corners</span><span class="tg"></span></button>
   <button class="sw" data-k="chatcorners" role="switch" aria-checked="true"><span class="nm">Chat box corners</span><span class="tg"></span></button>
+</div>
+<div class="grp">
+  <h2>Bar · top line (state 1)</h2>
+  <div class="tx"><input id="topIn" type="text" maxlength="40" spellcheck="false" autocomplete="off" aria-label="Top line text" placeholder="e.g. DAY #56 OF !50"><button class="play" type="button" id="topSet">Set</button><button class="play" type="button" id="topReset" title="Go back to the text in the StreamElements Fields">Reset</button></div>
+  <div class="cur" id="topCur">On screen: –</div>
 </div>
 <div class="grp">
   <h2>Reminders</h2>
@@ -113,6 +125,23 @@ function paint() {
     b.disabled = !state;
   });
 }
+const topIn = $("topIn"), topSet = $("topSet"), topReset = $("topReset"), topCur = $("topCur");
+let topWant = null, topT = null;
+function paintTop(m) {
+  const on = m ? (m.top || m.topDef || "") : null;
+  topCur.textContent = "On screen: " + (on == null ? "–" : on || "(empty)") + (m && !m.top ? " · from the Fields" : "");
+  [topIn, topSet, topReset].forEach((e) => { e.disabled = !state; });
+  if (m && topWant !== null && (m.top || "") === topWant) { clearTimeout(topT); topWant = null; note("Top line updated."); }
+}
+function sendTop(v) {
+  if (!state) return;
+  topWant = v; clearTimeout(topT);
+  topT = setTimeout(() => { topWant = null; note("The widget didn't confirm that – is OBS showing the overlay?", true); }, CONFIG.answerWaitMs);
+  post({ t: "text", k: "top", v, at: Date.now() }).catch(() => note("Couldn't reach ntfy.sh – check the internet connection.", true));
+}
+topSet.addEventListener("click", () => { const v = topIn.value.trim().toUpperCase().slice(0, 40); if (v) sendTop(v); });
+topIn.addEventListener("keydown", (e) => { if (e.key === "Enter") topSet.click(); });
+topReset.addEventListener("click", () => { topIn.value = ""; sendTop(""); });
 function post(obj) { return fetch(CONFIG.relay + encodeURIComponent(topic), { method: "POST", body: JSON.stringify(obj) }); }
 
 function onState(m, live) {
@@ -124,6 +153,7 @@ function onState(m, live) {
   paint();
   if (live) { fresh = true; status("live", m.editor ? "Live (editor)" : "Live"); note(""); }
   else if (!fresh) { status("wait", "Last known"); note("Showing the last saved switches – waiting for the widget to answer."); }
+  paintTop(m);
 }
 
 sws.forEach((b) => b.addEventListener("click", () => {
@@ -155,7 +185,7 @@ function connect() {
     es.onerror = () => { if (es.readyState === 2) { status("wait", "Reconnecting"); setTimeout(open, Math.min(30000, 2000 * ++tries)); } };
   };
   open();
-  status("wait", "Connecting"); paint();
+  status("wait", "Connecting"); paint(); paintTop(null);
   setInterval(() => { if (fresh && Date.now() - heardAt > CONFIG.staleMs) { fresh = false; status("wait", "Waiting"); post({ t: "hello", at: Date.now() }).catch(() => {}); } }, 30000);
   setTimeout(() => { if (!fresh) { status("wait", "Waiting"); note(state ? "Showing the last saved switches – the widget hasn't answered yet (is the overlay open in OBS?)." : "No answer yet – is the overlay open in OBS, with the same channel name in its settings?", !state); } }, 8000);
 }
